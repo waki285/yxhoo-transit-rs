@@ -4,7 +4,7 @@ use chrono::{Datelike, Timelike};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    args::{SeatPreference, TransitArgs, TransitTicketPreference, WalkingSpeed},
+    args::TransitArgs,
     http::http_client,
     transit_dto::{TransitDto, load_next_data, next_data_to_transit_dto},
 };
@@ -99,43 +99,22 @@ pub async fn transit(args: &TransitArgs) -> anyhow::Result<TransitDto> {
     q.push(("type".into(), args.date_kind.as_u32().to_string()));
 
     // criteria
-    let s = args.criteria.unwrap_or_default().as_u32();
+    let s = args.criteria.as_u32();
     q.push(("s".into(), s.to_string()));
 
     // rank
     q.push(("no".into(), args.rank.to_string()));
 
     // options
-    if let Some(opt) = &args.options {
-        if let Some(ticket) = opt.ticket_preference.clone() {
-            q.push(("ticket".into(), ticket.as_str().to_string()));
-        }
-        if let Some(seat) = &opt.seat_preference {
-            q.push(("expkind".into(), seat.as_u32().to_string()));
-        }
-        if let Some(ws) = opt.walking_speed {
-            q.push(("ws".into(), ws.as_u32().to_string()));
-        }
+    let opt = &args.options;
+    q.push(("ticket".into(), opt.ticket_preference.as_str().to_string()));
+    q.push(("expkind".into(), opt.seat_preference.as_u32().to_string()));
+    q.push(("ws".into(), opt.walking_speed.as_u32().to_string()));
+    let set: HashSet<&'static str> = opt.available_means.iter().map(|m| m.as_str()).collect();
 
-        let set: HashSet<&'static str> = opt.available_means.iter().map(|m| m.as_str()).collect();
-
-        for key in ["al", "shin", "ex", "hb", "lb", "sr"] {
-            let v = if set.contains(key) { "1" } else { "0" };
-            q.push((key.into(), v.into()));
-        }
-    } else {
-        q.push((
-            "ticket".into(),
-            TransitTicketPreference::default().as_str().to_string(),
-        ));
-        q.push((
-            "expkind".into(),
-            SeatPreference::default().as_u32().to_string(),
-        ));
-        q.push(("ws".into(), WalkingSpeed::default().as_u32().to_string()));
-        for key in ["al", "shin", "ex", "hb", "lb", "sr"] {
-            q.push((key.into(), "1".into()));
-        }
+    for key in ["al", "shin", "ex", "hb", "lb", "sr"] {
+        let v = if set.contains(key) { "1" } else { "0" };
+        q.push((key.into(), v.into()));
     }
 
     let response = client
@@ -179,9 +158,8 @@ mod tests {
                 .with_ymd_and_hms(2024, 7, 1, 9, 0, 0)
                 .unwrap(),
             date_kind: crate::args::DateKind::DepartureTime,
-            criteria: None,
             rank: 1,
-            options: None,
+            ..Default::default()
         };
         let result = transit(&args).await.unwrap();
         println!("{:#?}", result);

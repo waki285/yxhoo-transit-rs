@@ -8,9 +8,8 @@ async fn main() -> Result<()> {
         to: "渋谷".into(),
         date: chrono::Local::now().into(),
         date_kind: DateKind::DepartureTime,
-        criteria: None,
         rank: 1,
-        options: None,
+        ..Default::default()
     };
 
     let result = yxhoo_transit::transit(&args).await?;
@@ -21,9 +20,8 @@ async fn main() -> Result<()> {
         to: "沖縄美ら海水族館".into(),
         date: chrono::Local::now().into(),
         date_kind: DateKind::DepartureTime,
-        criteria: None,
         rank: 1,
-        options: None,
+        ..Default::default()
     };
 
     let result = yxhoo_transit::transit(&args).await?;

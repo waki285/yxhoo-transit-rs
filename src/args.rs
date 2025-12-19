@@ -109,15 +109,19 @@ fn default_available_means() -> Vec<AvailableMeans> {
 
 /// Optional route search options.
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[cfg_attr(feature = "schemars", schemars(deny_unknown_fields))]
 #[derive(Debug, Clone, Deserialize)]
-#[serde(rename_all(deserialize = "camelCase"))]
+#[serde(rename_all(deserialize = "camelCase"), deny_unknown_fields)]
 pub struct TransitOptions {
     /// IC card priority (IC) or cash/ticket priority (Normal).
-    pub ticket_preference: Option<TransitTicketPreference>,
+    #[serde(default)]
+    pub ticket_preference: TransitTicketPreference,
     /// Seat preference: non-reserved, reserved, or green car (if applicable).
-    pub seat_preference: Option<SeatPreference>,
+    #[serde(default)]
+    pub seat_preference: SeatPreference,
     /// Walking speed when transferring (default: Leisurely).
-    pub walking_speed: Option<WalkingSpeed>,
+    #[serde(default)]
+    pub walking_speed: WalkingSpeed,
     /// Available means of transportation (default: all)
     #[serde(default = "default_available_means")]
     pub available_means: Vec<AvailableMeans>,
@@ -126,9 +130,9 @@ pub struct TransitOptions {
 impl Default for TransitOptions {
     fn default() -> Self {
         Self {
-            ticket_preference: Some(TransitTicketPreference::default()),
-            seat_preference: Some(SeatPreference::default()),
-            walking_speed: Some(WalkingSpeed::default()),
+            ticket_preference: TransitTicketPreference::default(),
+            seat_preference: SeatPreference::default(),
+            walking_speed: WalkingSpeed::default(),
             available_means: default_available_means(),
         }
     }
@@ -149,6 +153,12 @@ pub enum DateKind {
 impl DateKind {
     pub fn as_u32(&self) -> u32 {
         *self as u32
+    }
+}
+
+impl Default for DateKind {
+    fn default() -> Self {
+        DateKind::DepartureTime
     }
 }
 
@@ -177,7 +187,9 @@ fn default_rank() -> u32 {
 
 /// Arguments for transit route search.
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
-#[derive(Debug, Clone, Deserialize)]
+#[cfg_attr(feature = "schemars", schemars(deny_unknown_fields))]
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(rename_all(deserialize = "camelCase"), deny_unknown_fields)]
 pub struct TransitArgs {
     /// Origin name (station / place).
     pub from: String,
@@ -191,10 +203,12 @@ pub struct TransitArgs {
     /// Interpretation of `date` (departure/arrival/first/last).
     pub date_kind: DateKind,
     /// Criteria for selecting transfers. By default, sorted by earliest arrival.
-    pub criteria: Option<TransitCriteria>,
+    #[serde(default)]
+    pub criteria: TransitCriteria,
     /// Returns the ranking number based on the criteria. Defaults to 1.
     #[serde(default = "default_rank")]
     pub rank: u32,
     /// Optional route search options.
-    pub options: Option<TransitOptions>,
+    #[serde(default)]
+    pub options: TransitOptions,
 }
