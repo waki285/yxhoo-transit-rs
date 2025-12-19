@@ -203,6 +203,10 @@ pub struct TransitArgs {
     #[serde(default = "default_rank")]
     pub rank: u32,
     /// Optional route search options.
+    /// ticket_preference: IC card priority (IC) or cash/ticket priority (Normal).
+    /// seat_preference: Seat preference: NonReserved, Reserved, or GreenCar (if applicable).
+    /// walking_speed: Walking speed when transferring. Fast, Brisk, Leisurely (default), or Slow.
+    /// available_means: Available means of transportation. Array of AvailableMeans (Airlane, Shinkansen, PaidExpress, HighwayBus, Bus, Ferry). By default, all means are available.
     #[serde(default)]
     pub options: TransitOptions,
 }
