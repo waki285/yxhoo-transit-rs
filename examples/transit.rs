@@ -1,5 +1,5 @@
 use anyhow::Result;
-use yxhoo_transit::{DateKind, TransitArgs};
+use yxhoo_transit::args::{DateKind, TransitArgs};
 
 #[tokio::main]
 async fn main() -> Result<()> {
