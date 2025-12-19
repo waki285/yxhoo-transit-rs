@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     args::{SeatPreference, TransitArgs, TransitTicketPreference, WalkingSpeed},
     http::http_client,
-    transit::{TransitDto, load_next_data, next_data_to_transit_dto},
+    transit_dto::{TransitDto, load_next_data, next_data_to_transit_dto},
 };
 
 /// Kind of suggested place returned by Yxhoo.
