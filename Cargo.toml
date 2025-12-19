@@ -9,6 +9,8 @@ readme = "README.md"
 keywords = ["transit", "japan", "api"]
 categories = ["api-bindings", "web-programming::http-client"]
 
+rust-version = "1.85" 
+
 [features]
 default = ["http-reqwest"]
 http-wreq = ["dep:wreq", "dep:wreq-util"]
