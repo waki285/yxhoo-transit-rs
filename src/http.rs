@@ -1,3 +1,9 @@
+#[cfg(all(feature = "http-reqwest", feature = "http-wreq"))]
+compile_error!("Enable only one of the features: `http-reqwest` or `http-wreq`.");
+
+#[cfg(not(any(feature = "http-reqwest", feature = "http-wreq")))]
+compile_error!("Enable one HTTP client feature: `http-reqwest` or `http-wreq`.");
+
 #[cfg(feature = "http-wreq")]
 use wreq_util::Emulation;
 

@@ -34,12 +34,13 @@ cargo test
 cargo fmt
 
 # Lint (treat warnings as errors)
-cargo clippy --all-targets --all-features -- -D warnings
+cargo clippy --all-targets -- -D warnings
+cargo clippy --all-targets --no-default-features --features http-wreq -- -D warnings
 ```
 
 ## Feature Flags
 
-This crate lets you switch the HTTP client via features.
+This crate lets you switch the HTTP client via features. Exactly one must be enabled.
 
 - Default: `http-reqwest`
 - Alternative: `http-wreq`
