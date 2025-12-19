@@ -13,7 +13,7 @@ async fn main() -> Result<()> {
         options: None,
     };
 
-    let result = yxhoo_transit::transit_dto(&args).await?;
+    let result = yxhoo_transit::transit(&args).await?;
     println!("{:?}", result);
 
     let args = TransitArgs {
@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
         options: None,
     };
 
-    let result = yxhoo_transit::transit_dto(&args).await?;
+    let result = yxhoo_transit::transit(&args).await?;
     println!("{:?}", result);
     Ok(())
 }
