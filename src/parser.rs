@@ -1,4 +1,5 @@
 use anyhow::{Result, anyhow};
+use chrono::{DateTime, FixedOffset, NaiveDate, NaiveTime, TimeZone};
 use schemars::JsonSchema;
 use scraper::{Html, Selector};
 use serde::Serialize;
@@ -10,8 +11,9 @@ use serde_json::Value;
 pub struct TransitDto {
     pub from: String,
     pub to: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub search_date_time: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
+    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    pub search_date_time: Option<DateTime<FixedOffset>>,
     /// array but must be one route
     pub routes: Vec<RouteDto>,
 }
@@ -29,10 +31,12 @@ pub struct RouteDto {
 #[derive(Debug, Clone, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteSummaryDto {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_time: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arrival_time: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
+    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    pub departure_time: Option<DateTime<FixedOffset>>,
+    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
+    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    pub arrival_time: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_minutes: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -68,10 +72,12 @@ pub struct SegmentDto {
     pub fare_yen: Option<u32>,
 
     // nullable
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub departure_time: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub arrival_time: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
+    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    pub departure_time: Option<DateTime<FixedOffset>>,
+    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
+    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    pub arrival_time: Option<DateTime<FixedOffset>>,
 }
 
 pub fn load_next_data(input: &str) -> Result<Value> {
@@ -110,6 +116,7 @@ pub fn next_data_to_transit_dto(root: &Value) -> Result<TransitDto> {
         .to_string();
 
     let search_date_time = build_search_datetime(&page_props["pageQuery"]);
+    let base_date = search_date_time.as_ref();
 
     let features = navi["featureInfoList"]
         .as_array()
@@ -122,15 +129,19 @@ pub fn next_data_to_transit_dto(root: &Value) -> Result<TransitDto> {
         let v = vec![];
         let edges = feature["edgeInfoList"].as_array().unwrap_or(&v);
 
+        let departure_time = summary
+            .get("departureTime")
+            .and_then(as_nonempty_str)
+            .and_then(|s| base_date.and_then(|dt| time_on_date_with_rollover(dt, s, None)));
+
+        let arrival_time = summary
+            .get("arrivalTime")
+            .and_then(as_nonempty_str)
+            .and_then(|s| base_date.and_then(|dt| time_on_date_with_rollover(dt, s, departure_time)));
+
         let route_summary = RouteSummaryDto {
-            departure_time: summary
-                .get("departureTime")
-                .and_then(as_nonempty_str)
-                .map(str::to_string),
-            arrival_time: summary
-                .get("arrivalTime")
-                .and_then(as_nonempty_str)
-                .map(str::to_string),
+            departure_time,
+            arrival_time,
             duration_minutes: summary
                 .get("totalTime")
                 .and_then(|v| v.as_str())
@@ -152,7 +163,7 @@ pub fn next_data_to_transit_dto(root: &Value) -> Result<TransitDto> {
             is_cheap: summary.get("isCheap").and_then(|v| v.as_bool()),
         };
 
-        let segments = build_segments_from_edges(edges);
+        let segments = build_segments_from_edges(edges, base_date);
 
         routes.push(RouteDto {
             rank: (idx as u32) + 1,
@@ -169,12 +180,17 @@ pub fn next_data_to_transit_dto(root: &Value) -> Result<TransitDto> {
     })
 }
 
-fn build_segments_from_edges(edges: &[Value]) -> Vec<SegmentDto> {
+fn build_segments_from_edges(
+    edges: &[Value],
+    base_date: Option<&DateTime<FixedOffset>>,
+) -> Vec<SegmentDto> {
     let mut out = Vec::new();
 
     if edges.len() < 2 {
         return out;
     }
+
+    let mut last_time: Option<DateTime<FixedOffset>> = None;
 
     for i in 0..(edges.len() - 1) {
         let cur = &edges[i];
@@ -221,7 +237,10 @@ fn build_segments_from_edges(edges: &[Value]) -> Vec<SegmentDto> {
             .and_then(|arr| arr.first())
             .and_then(|x| x.get("time"))
             .and_then(|t| as_nonempty_str(t))
-            .map(str::to_string);
+            .and_then(|s| base_date.and_then(|dt| time_on_date_with_rollover(dt, s, last_time)));
+        if let Some(dt) = departure_time {
+            last_time = Some(dt);
+        }
 
         let arrival_time = next
             .get("timeInfo")
@@ -229,7 +248,10 @@ fn build_segments_from_edges(edges: &[Value]) -> Vec<SegmentDto> {
             .and_then(|arr| arr.first())
             .and_then(|x| x.get("time"))
             .and_then(|t| as_nonempty_str(t))
-            .map(str::to_string);
+            .and_then(|s| base_date.and_then(|dt| time_on_date_with_rollover(dt, s, last_time)));
+        if let Some(dt) = arrival_time {
+            last_time = Some(dt);
+        }
 
         out.push(SegmentDto {
             mode,
@@ -324,13 +346,60 @@ fn parse_distance_km(s: &str) -> Option<f64> {
     None
 }
 
-fn build_search_datetime(page_query: &Value) -> Option<String> {
-    let y = page_query.get("y")?.as_str()?;
-    let m = page_query.get("m")?.as_str()?;
-    let d = page_query.get("d")?.as_str()?;
-    let hh = page_query.get("hh")?.as_str()?;
-    let m1 = page_query.get("m1")?.as_str()?;
+fn build_search_datetime(page_query: &Value) -> Option<DateTime<FixedOffset>> {
+    let y = page_query.get("y")?.as_str()?.parse::<i32>().ok()?;
+    let m = page_query.get("m")?.as_str()?.parse::<u32>().ok()?;
+    let d = page_query.get("d")?.as_str()?.parse::<u32>().ok()?;
+    let hh = page_query.get("hh")?.as_str()?.parse::<u32>().ok()?;
 
-    let mm = format!("{:0>2}", m1);
-    Some(format!("{y}-{m}-{d}T{hh}:{mm}"))
+    let m1 = page_query
+        .get("m1")
+        .and_then(|v| v.as_str())
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(0);
+    let m2 = page_query
+        .get("m2")
+        .and_then(|v| v.as_str())
+        .and_then(|s| s.parse::<u32>().ok())
+        .unwrap_or(0);
+
+    let mm = m1 * 10 + m2;
+
+    let date = NaiveDate::from_ymd_opt(y, m, d)?;
+    let time = NaiveTime::from_hms_opt(hh, mm, 0)?;
+    let dt = date.and_time(time);
+    jst_offset().from_local_datetime(&dt).single()
+}
+
+fn jst_offset() -> FixedOffset {
+    FixedOffset::east_opt(9 * 3600).expect("valid JST offset")
+}
+
+fn parse_hhmm(s: &str) -> Option<NaiveTime> {
+    let mut it = s.split(':');
+    let h = it.next()?.trim().parse::<u32>().ok()?;
+    let m = it.next()?.trim().parse::<u32>().ok()?;
+    if it.next().is_some() {
+        return None;
+    }
+    NaiveTime::from_hms_opt(h, m, 0)
+}
+
+fn time_on_date_with_rollover(
+    base: &DateTime<FixedOffset>,
+    time_str: &str,
+    last: Option<DateTime<FixedOffset>>,
+) -> Option<DateTime<FixedOffset>> {
+    let time = parse_hhmm(time_str)?;
+    let date = if let Some(prev) = last {
+        let mut date = prev.date_naive();
+        if time < prev.time() {
+            date = date.succ_opt()?;
+        }
+        date
+    } else {
+        base.date_naive()
+    };
+    let dt = date.and_time(time);
+    base.offset().from_local_datetime(&dt).single()
 }

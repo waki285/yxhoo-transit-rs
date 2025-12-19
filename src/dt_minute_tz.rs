@@ -18,7 +18,12 @@ pub fn deserialize<'de, D>(de: D) -> Result<DateTime<FixedOffset>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let mut s = String::deserialize(de)?;
+    let s = String::deserialize(de)?;
+    parse_str(&s).map_err(serde::de::Error::custom)
+}
+
+fn parse_str(s: &str) -> Result<DateTime<FixedOffset>, String> {
+    let mut s = s.to_string();
 
     // Normalize 'Z' to +00:00
     if s.ends_with('Z') {
@@ -41,13 +46,41 @@ where
         if rest.starts_with('+') || rest.starts_with('-') {
             let injected = format!("{date_part}T00:00{rest}");
             let dt = DateTime::parse_from_str(&injected, FMT_MIN_TZ)
-                .map_err(serde::de::Error::custom)?;
+                .map_err(|e| e.to_string())?;
             let dt = dt.with_second(0).unwrap().with_nanosecond(0).unwrap();
             return Ok(dt);
         }
     }
 
-    Err(serde::de::Error::custom("timezone is required"))
+    Err("timezone is required".to_string())
+}
+
+pub mod option {
+    use super::*;
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S>(dt: &Option<DateTime<FixedOffset>>, ser: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match dt {
+            Some(v) => super::serialize(v, ser),
+            None => ser.serialize_none(),
+        }
+    }
+
+    pub fn deserialize<'de, D>(de: D) -> Result<Option<DateTime<FixedOffset>>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let opt = Option::<String>::deserialize(de)?;
+        match opt {
+            Some(s) => super::parse_str(&s)
+                .map(Some)
+                .map_err(serde::de::Error::custom),
+            None => Ok(None),
+        }
+    }
 }
 
 pub fn schema(_gen: &mut schemars::generate::SchemaGenerator) -> Schema {

@@ -1,5 +1,11 @@
 # yxhoo-transit
 
+[![crates.io](https://img.shields.io/crates/v/yxhoo-transit.svg)](https://crates.io/crates/yxhoo-transit)
+[![docs.rs](https://img.shields.io/docsrs/yxhoo-transit.svg)](https://docs.rs/yxhoo-transit)
+[![downloads](https://img.shields.io/crates/dv/yxhoo-transit.svg)](https://crates.io/crates/yxhoo-transit)
+[![license](https://img.shields.io/crates/l/yxhoo-transit.svg)](https://crates.io/crates/yxhoo-transit)
+[![CI](https://img.shields.io/github/actions/workflow/status/waki285/yxhoo-transit/ci.yml?branch=main)](https://github.com/waki285/yxhoo-transit/actions/workflows/ci.yml)
+
 A Rust client for Yxhoo! Transit (Japan) unofficial API.
 This crate provides functions to suggest places and search for transit routes using Yxhoo! Transit.
 
