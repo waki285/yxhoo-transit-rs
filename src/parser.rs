@@ -4,7 +4,8 @@ use scraper::{Html, Selector};
 use serde::Serialize;
 use serde_json::Value;
 
-#[derive(Debug, Serialize, JsonSchema)]
+/// Parsed transit search result.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct TransitDto {
     pub from: String,
@@ -15,7 +16,8 @@ pub struct TransitDto {
     pub routes: Vec<RouteDto>,
 }
 
-#[derive(Debug, Serialize, JsonSchema)]
+/// A single route in the search result.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteDto {
     pub rank: u32,
@@ -23,7 +25,8 @@ pub struct RouteDto {
     pub segments: Vec<SegmentDto>,
 }
 
-#[derive(Debug, Serialize, JsonSchema)]
+/// Summary info for a route.
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteSummaryDto {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -46,7 +49,8 @@ pub struct RouteSummaryDto {
     pub is_cheap: Option<bool>,
 }
 
-#[derive(Debug, Serialize, JsonSchema)]
+/// A segment within a route (rail, walk, bus, etc.).
+#[derive(Debug, Clone, Serialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SegmentDto {
     pub mode: String, // "rail" | "walk" | "bus" | "flight" | "ferry" | "unknown"

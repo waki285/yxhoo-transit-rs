@@ -9,6 +9,7 @@ use crate::{
     parser::{TransitDto, load_next_data, next_data_to_transit_dto},
 };
 
+/// Kind of suggested place returned by Yxhoo.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum YxhooPlaceKind {
     #[serde(rename(deserialize = "st"))]
@@ -21,6 +22,7 @@ pub enum YxhooPlaceKind {
     Other,
 }
 
+/// Suggested place entry.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(deserialize = "PascalCase"))]
 pub struct YxhooPlace {
@@ -33,6 +35,7 @@ pub struct YxhooPlace {
     pub kind: YxhooPlaceKind,
 }
 
+/// Suggest API response payload.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct YxhooSuggestResponse {
@@ -47,6 +50,10 @@ pub struct YxhooSuggestResponse {
 static BASE_URL: LazyLock<String> =
     LazyLock::new(|| "https://transit.yXhoo.co.jp".replace("X", "a"));
 
+/// Suggest places by a free-form query string.
+///
+/// # Errors
+/// Returns an error if the HTTP request fails or the response cannot be parsed.
 pub async fn suggest_places(query: &str) -> anyhow::Result<YxhooSuggestResponse> {
     let client = http_client();
     let response = client
@@ -65,6 +72,10 @@ fn minute_digits(min: u32) -> (u32, u32) {
     (min / 10, min % 10)
 }
 
+/// Search transit routes using the given arguments.
+///
+/// # Errors
+/// Returns an error if the HTTP request fails or the response cannot be parsed.
 pub async fn transit(args: &TransitArgs) -> anyhow::Result<TransitDto> {
     let client = http_client();
     let mut q: Vec<(String, String)> = Vec::new();
