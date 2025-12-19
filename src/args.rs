@@ -12,19 +12,14 @@ pub struct SuggestPlaceArgs {
 }
 
 /// Ticket preference for route search.
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum TransitTicketPreference {
     /// IC card priority
     IC,
     /// Cash / ticket priority
+    #[default]
     Normal,
-}
-
-impl Default for TransitTicketPreference {
-    fn default() -> Self {
-        Self::Normal
-    }
 }
 
 impl TransitTicketPreference {
@@ -37,9 +32,10 @@ impl TransitTicketPreference {
 }
 
 /// Seat preference for limited express / reserved seat services.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum SeatPreference {
+    #[default]
     NonReserved = 1,
     Reserved = 2,
     GreenCar = 3,
@@ -51,18 +47,13 @@ impl SeatPreference {
     }
 }
 
-impl Default for SeatPreference {
-    fn default() -> Self {
-        Self::NonReserved
-    }
-}
-
 /// Walking speed when transferring.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum WalkingSpeed {
     Fast = 1,
     Brisk = 2,
+    #[default]
     Leisurely = 3,
     Slow = 4,
 }
@@ -70,12 +61,6 @@ pub enum WalkingSpeed {
 impl WalkingSpeed {
     pub fn as_u32(&self) -> u32 {
         *self as u32
-    }
-}
-
-impl Default for WalkingSpeed {
-    fn default() -> Self {
-        Self::Leisurely
     }
 }
 
@@ -162,9 +147,10 @@ impl DateKind {
 }
 
 /// Criteria to rank routes.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum TransitCriteria {
+    #[default]
     EarliestArrival = 0,
     LowestCost = 1,
     FewestTransfers = 2,
@@ -176,11 +162,6 @@ impl TransitCriteria {
     }
 }
 
-impl Default for TransitCriteria {
-    fn default() -> Self {
-        Self::EarliestArrival
-    }
-}
 
 #[inline]
 fn default_rank() -> u32 {
