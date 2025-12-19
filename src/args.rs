@@ -140,9 +140,10 @@ impl Default for TransitOptions {
 
 /// Date type for route search.
 #[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum DateKind {
+    #[default]
     DepartureTime = 1,
     LastTrain = 2,
     FirstTrain = 3,
@@ -153,12 +154,6 @@ pub enum DateKind {
 impl DateKind {
     pub fn as_u32(&self) -> u32 {
         *self as u32
-    }
-}
-
-impl Default for DateKind {
-    fn default() -> Self {
-        DateKind::DepartureTime
     }
 }
 
