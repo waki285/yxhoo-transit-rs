@@ -9,12 +9,21 @@ use serde_json::Value;
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TransitDto {
+    /// Origin display name.
     pub from: String,
+    /// Destination display name.
     pub to: String,
-    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
+    /// Search date/time with timezone, if available.
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "crate::dt_minute_tz::option"
+    )]
+    #[cfg_attr(
+        feature = "schemars",
+        schemars(schema_with = "crate::dt_minute_tz::schema")
+    )]
     pub search_date_time: Option<DateTime<FixedOffset>>,
-    /// array but must be one route
+    /// Routes returned by the search (usually 1 entry).
     pub routes: Vec<RouteDto>,
 }
 
@@ -23,8 +32,11 @@ pub struct TransitDto {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteDto {
+    /// Rank number (1-based).
     pub rank: u32,
+    /// Summary information for this route.
     pub summary: RouteSummaryDto,
+    /// Route segments in order.
     pub segments: Vec<SegmentDto>,
 }
 
@@ -33,24 +45,45 @@ pub struct RouteDto {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteSummaryDto {
-    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
+    /// Departure time with timezone, if present.
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "crate::dt_minute_tz::option"
+    )]
+    #[cfg_attr(
+        feature = "schemars",
+        schemars(schema_with = "crate::dt_minute_tz::schema")
+    )]
     pub departure_time: Option<DateTime<FixedOffset>>,
-    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
+    /// Arrival time with timezone, if present.
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "crate::dt_minute_tz::option"
+    )]
+    #[cfg_attr(
+        feature = "schemars",
+        schemars(schema_with = "crate::dt_minute_tz::schema")
+    )]
     pub arrival_time: Option<DateTime<FixedOffset>>,
+    /// Total duration in minutes, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_minutes: Option<u32>,
+    /// Transfer count, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub transfer_count: Option<u32>,
+    /// Total price in JPY, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub total_price_yen: Option<u32>,
+    /// Distance in kilometers, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub distance_km: Option<f64>,
+    /// Fastest route flag, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_fast: Option<bool>,
+    /// Easiest route flag, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_easy: Option<bool>,
+    /// Cheapest route flag, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub is_cheap: Option<bool>,
 }
@@ -60,26 +93,48 @@ pub struct RouteSummaryDto {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SegmentDto {
+    /// Segment mode: "rail" | "walk" | "bus" | "flight" | "ferry" | "unknown".
+    /// Caution: this is inferred from line name and may be inaccurate.
     pub mode: String, // "rail" | "walk" | "bus" | "flight" | "ferry" | "unknown"
+    /// Segment origin name.
     pub from: String,
+    /// Segment destination name.
     pub to: String,
 
+    /// Line name, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line: Option<String>,
+    /// Destination/terminus name, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub destination: Option<String>,
 
+    /// Segment duration in minutes, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_minutes: Option<u32>,
+    /// Segment fare in JPY, if present.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub fare_yen: Option<u32>,
 
     // nullable
-    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
+    /// Departure time with timezone, if present.
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "crate::dt_minute_tz::option"
+    )]
+    #[cfg_attr(
+        feature = "schemars",
+        schemars(schema_with = "crate::dt_minute_tz::schema")
+    )]
     pub departure_time: Option<DateTime<FixedOffset>>,
-    #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
+    /// Arrival time with timezone, if present.
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        with = "crate::dt_minute_tz::option"
+    )]
+    #[cfg_attr(
+        feature = "schemars",
+        schemars(schema_with = "crate::dt_minute_tz::schema")
+    )]
     pub arrival_time: Option<DateTime<FixedOffset>>,
 }
 
@@ -140,7 +195,9 @@ pub fn next_data_to_transit_dto(root: &Value) -> Result<TransitDto> {
         let arrival_time = summary
             .get("arrivalTime")
             .and_then(as_nonempty_str)
-            .and_then(|s| base_date.and_then(|dt| time_on_date_with_rollover(dt, s, departure_time)));
+            .and_then(|s| {
+                base_date.and_then(|dt| time_on_date_with_rollover(dt, s, departure_time))
+            });
 
         let route_summary = RouteSummaryDto {
             departure_time,
@@ -276,7 +333,12 @@ fn infer_mode(line: Option<&str>) -> String {
     let s = line.unwrap_or("");
     if s.contains("徒歩") {
         "walk".to_string()
-    } else if s.contains("空路") || s.contains("フライト") || s.contains("飛行機") {
+    } else if s.contains("空路")
+        || s.contains("フライト")
+        || s.contains("飛行機")
+        || s.contains("ＡＮＡ")
+        || s.contains("ＪＡＬ")
+    {
         "flight".to_string()
     } else if s.contains("バス") || s.contains("連絡バス") || s.contains("高速") {
         "bus".to_string()

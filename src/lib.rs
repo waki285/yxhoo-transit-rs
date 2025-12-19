@@ -46,7 +46,7 @@
 pub mod args;
 mod dt_minute_tz;
 mod http;
-mod parser;
+pub mod transit;
 mod yxhoo;
 
 pub use yxhoo::{suggest_places, transit};

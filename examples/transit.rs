@@ -18,7 +18,7 @@ async fn main() -> Result<()> {
 
     let args = TransitArgs {
         from: "仙台".into(),
-        to: "岐阜羽島".into(),
+        to: "沖縄美ら海水族館".into(),
         date: chrono::Local::now().into(),
         date_kind: DateKind::DepartureTime,
         criteria: None,
