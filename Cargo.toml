@@ -2,11 +2,11 @@
 name = "yxhoo-transit"
 version = "0.1.0"
 edition = "2024"
-description = "A client for Yahoo! Transit (Japan) unofficial API"
-license = "MIT"
-repository = "https://github.com/waki285/norikae-mcp"
+description = "A client for Yxhoo! Transit (Japan) unofficial API"
+license = "Apache-2.0"
+repository = "https://github.com/waki285/yxhoo-transit-rs"
 readme = "README.md"
-keywords = ["yahoo", "transit", "japan", "api"]
+keywords = ["transit", "japan", "api"]
 categories = ["api-bindings", "web-programming::http-client"]
 
 [features]
