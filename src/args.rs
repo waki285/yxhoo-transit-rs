@@ -174,7 +174,6 @@ impl TransitCriteria {
     }
 }
 
-
 #[inline]
 fn default_rank() -> u32 {
     1

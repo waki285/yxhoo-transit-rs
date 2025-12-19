@@ -44,8 +44,7 @@ fn parse_str(s: &str) -> Result<DateTime<FixedOffset>, String> {
         let (date_part, rest) = s.split_at(10);
         if rest.starts_with('+') || rest.starts_with('-') {
             let injected = format!("{date_part}T00:00{rest}");
-            let dt = DateTime::parse_from_str(&injected, FMT_MIN_TZ)
-                .map_err(|e| e.to_string())?;
+            let dt = DateTime::parse_from_str(&injected, FMT_MIN_TZ).map_err(|e| e.to_string())?;
             let dt = dt.with_second(0).unwrap().with_nanosecond(0).unwrap();
             return Ok(dt);
         }
