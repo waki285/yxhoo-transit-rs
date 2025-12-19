@@ -19,7 +19,7 @@
 //!
 //! ## Example
 //! ```no_run
-//! use yxhoo_transit::{suggest_places, transit, TransitArgs, DateKind};
+//! use yxhoo_transit::{suggest_places, transit, args::{TransitArgs, DateKind}};
 //!
 //! # #[tokio::main]
 //! # async fn main() -> anyhow::Result<()> {
