@@ -1,0 +1,39 @@
+[package]
+name = "yxhoo-transit"
+version = "0.1.0"
+edition = "2024"
+description = "A client for Yahoo! Transit (Japan) unofficial API"
+license = "MIT"
+repository = "https://github.com/waki285/norikae-mcp"
+readme = "README.md"
+keywords = ["yahoo", "transit", "japan", "api"]
+categories = ["api-bindings", "web-programming::http-client"]
+
+[features]
+default = ["http-reqwest"]
+http-wreq = ["dep:wreq", "dep:wreq-util"]
+http-reqwest = ["dep:reqwest"]
+
+[dependencies]
+anyhow = "1"
+chrono = { version = "0.4.42", default-features = false, features = [
+    "clock",
+    "std",
+    "oldtime",
+    "serde",
+] }
+schemars = "1"
+scraper = "0.25.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12.26", default-features = false, features = [
+    "charset",
+    "json",
+    "rustls-tls",
+    "system-proxy",
+], optional = true }
+wreq = { version = "5.3.0", features = ["json"], optional = true }
+wreq-util = { version = "2.2.6", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
