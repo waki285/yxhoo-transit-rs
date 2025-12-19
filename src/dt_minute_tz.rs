@@ -1,5 +1,4 @@
 use chrono::{DateTime, FixedOffset, Timelike};
-use schemars::{Schema, json_schema};
 use serde::{self, Deserialize, Deserializer, Serializer};
 
 const FMT_MIN_TZ: &str = "%Y-%m-%dT%H:%M%:z";
@@ -69,6 +68,7 @@ pub mod option {
         }
     }
 
+    #[allow(dead_code)]
     pub fn deserialize<'de, D>(de: D) -> Result<Option<DateTime<FixedOffset>>, D::Error>
     where
         D: Deserializer<'de>,
@@ -83,13 +83,14 @@ pub mod option {
     }
 }
 
-pub fn schema(_gen: &mut schemars::generate::SchemaGenerator) -> Schema {
+#[cfg(feature = "schemars")]
+pub fn schema(_gen: &mut schemars::generate::SchemaGenerator) -> schemars::Schema {
     // YYYY-MM-DD
     // YYYY-MM-DDTHH:mm[:ss]
     // with required Z / ±HH:mm
     let pattern = r"^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?)?((Z)|([+-]\d{2}:\d{2}))$";
 
-    let s: Schema = json_schema!({
+    let s: schemars::Schema = schemars::json_schema!({
         "type": "string",
         "pattern": pattern,
         "description": "Accepted: YYYY-MM-DD[THH:mm[[:]ss]][Z|±HH:mm]. Seconds are truncated to minute. Timezone is required. If time is omitted, it is treated as 00:00. If dateType parameter is ArrivalTime or DepartureTime, YMDHm are required. If it is FirstTrain or LastTrain, YMD are required. If it is NotSpecified, it is not required.",

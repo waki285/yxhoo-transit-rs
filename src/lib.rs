@@ -7,13 +7,14 @@
 //!
 //! - `http-reqwest` (default)
 //! - `http-wreq`
+//! - `schemars`: Enable `JsonSchema` derives for public types.
 //!
 //! ```bash
 //! # default (reqwest)
 //! cargo test
 //!
 //! # wreq
-//! cargo test --no-default-features --features http-wreq
+//! cargo test --no-default-features --features http-wreq,schemars
 //! ```
 //!
 //! ## Example
@@ -43,9 +44,9 @@
 //! ## Notes
 //! This crate uses an unofficial API and may break without notice.
 pub mod args;
-pub mod dt_minute_tz;
-pub mod http;
-pub mod parser;
+mod dt_minute_tz;
+mod http;
+mod parser;
 pub mod yxhoo;
 
 pub use args::{

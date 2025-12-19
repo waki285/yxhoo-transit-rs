@@ -1,18 +1,19 @@
 use chrono::{DateTime, FixedOffset};
-use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
 use crate::dt_minute_tz;
 
 /// Arguments for place suggestions.
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Deserialize)]
 pub struct SuggestPlaceArgs {
     /// Free-form query string (station name, facility, etc.).
     pub query: String,
 }
 
 /// Ticket preference for route search.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum TransitTicketPreference {
     /// IC card priority
@@ -32,7 +33,8 @@ impl TransitTicketPreference {
 }
 
 /// Seat preference for limited express / reserved seat services.
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum SeatPreference {
     #[default]
@@ -48,7 +50,8 @@ impl SeatPreference {
 }
 
 /// Walking speed when transferring.
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum WalkingSpeed {
     Fast = 1,
@@ -65,7 +68,8 @@ impl WalkingSpeed {
 }
 
 /// Available means of transportation for route search.
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum AvailableMeans {
     Airlane,
@@ -104,7 +108,8 @@ fn default_available_means() -> Vec<AvailableMeans> {
 }
 
 /// Optional route search options.
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all(deserialize = "camelCase"))]
 pub struct TransitOptions {
     /// IC card priority (IC) or cash/ticket priority (Normal).
@@ -130,7 +135,8 @@ impl Default for TransitOptions {
 }
 
 /// Date type for route search.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum DateKind {
     DepartureTime = 1,
@@ -147,7 +153,8 @@ impl DateKind {
 }
 
 /// Criteria to rank routes.
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Hash)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum TransitCriteria {
     #[default]
@@ -169,7 +176,8 @@ fn default_rank() -> u32 {
 }
 
 /// Arguments for transit route search.
-#[derive(Debug, Clone, Deserialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Deserialize)]
 pub struct TransitArgs {
     /// Origin name (station / place).
     pub from: String,
@@ -177,7 +185,7 @@ pub struct TransitArgs {
     pub to: String,
     /// Date/time with timezone. Minutes precision.
     #[serde(with = "dt_minute_tz")]
-    #[schemars(schema_with = "dt_minute_tz::schema")]
+    #[cfg_attr(feature = "schemars", schemars(schema_with = "dt_minute_tz::schema"))]
     pub date: DateTime<FixedOffset>,
     #[serde(rename = "dateType")]
     /// Interpretation of `date` (departure/arrival/first/last).

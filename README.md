@@ -24,6 +24,7 @@ yxhoo-transit = "0.1.0"
 
 - `http-reqwest` (default): Use [reqwest](https://docs.rs/reqwest/latest/reqwest/) as the HTTP client.
 - `http-wreq`: Use [wreq](https://docs.rs/wreq/latest/wreq/) as the HTTP client.
+- `schemars`: Enable `JsonSchema` derives for public types.
 
 ## Example
 

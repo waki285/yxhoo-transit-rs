@@ -18,6 +18,7 @@ HTTP クライアントは feature で切り替えられます (どちらか一�
 
 - `http-reqwest` (デフォルト): HTTP クライアントに [reqwest](https://docs.rs/reqwest/latest/reqwest/) を使います。
 - `http-wreq`: HTTP クライアントに [wreq](https://docs.rs/wreq/latest/wreq/) を使います。
+- `schemars`: 公開型の `JsonSchema` derive を有効にします。
 
 ## 例
 

@@ -14,9 +14,9 @@ jobs:
       matrix:
         include:
           - name: reqwest
-            cargo_args: ""
+            cargo_args: "--no-default-features --features http-reqwest,schemars"
           - name: wreq
-            cargo_args: "--no-default-features --features http-wreq"
+            cargo_args: "--no-default-features --features http-wreq,schemars"
     steps:
       - uses: actions/checkout@v6
       - uses: dtolnay/rust-toolchain@stable

@@ -1,25 +1,26 @@
 use anyhow::{Result, anyhow};
 use chrono::{DateTime, FixedOffset, NaiveDate, NaiveTime, TimeZone};
-use schemars::JsonSchema;
 use scraper::{Html, Selector};
 use serde::Serialize;
 use serde_json::Value;
 
 /// Parsed transit search result.
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct TransitDto {
     pub from: String,
     pub to: String,
     #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
     pub search_date_time: Option<DateTime<FixedOffset>>,
     /// array but must be one route
     pub routes: Vec<RouteDto>,
 }
 
 /// A single route in the search result.
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteDto {
     pub rank: u32,
@@ -28,14 +29,15 @@ pub struct RouteDto {
 }
 
 /// Summary info for a route.
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RouteSummaryDto {
     #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
     pub departure_time: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
     pub arrival_time: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_minutes: Option<u32>,
@@ -54,7 +56,8 @@ pub struct RouteSummaryDto {
 }
 
 /// A segment within a route (rail, walk, bus, etc.).
-#[derive(Debug, Clone, Serialize, JsonSchema)]
+#[cfg_attr(feature = "schemars", derive(schemars::JsonSchema))]
+#[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SegmentDto {
     pub mode: String, // "rail" | "walk" | "bus" | "flight" | "ferry" | "unknown"
@@ -73,10 +76,10 @@ pub struct SegmentDto {
 
     // nullable
     #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
     pub departure_time: Option<DateTime<FixedOffset>>,
     #[serde(skip_serializing_if = "Option::is_none", with = "crate::dt_minute_tz::option")]
-    #[schemars(schema_with = "crate::dt_minute_tz::schema")]
+    #[cfg_attr(feature = "schemars", schemars(schema_with = "crate::dt_minute_tz::schema"))]
     pub arrival_time: Option<DateTime<FixedOffset>>,
 }
 
