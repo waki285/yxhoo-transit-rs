@@ -1,13 +1,21 @@
 use std::{collections::HashSet, sync::LazyLock};
 
 use chrono::{Datelike, Timelike};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize, de};
 
 use crate::{
     args::TransitArgs,
     http::http_client,
     transit_dto::{TransitDto, load_next_data, next_data_to_transit_dto},
 };
+
+fn de_f64_from_str<'de, D>(deserializer: D) -> Result<f64, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s = String::deserialize(deserializer)?;
+    s.parse::<f64>().map_err(de::Error::custom)
+}
 
 /// Kind of suggested place returned by Yxhoo.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -26,11 +34,19 @@ pub enum YxhooPlaceKind {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(deserialize = "PascalCase"))]
 pub struct YxhooPlace {
+    /// Place name suggestion. (e.g., 渋谷)
     pub suggest: String,
+    /// Reading in kana. (e.g., しぶや)
     pub yomi: String,
-    pub lat: String,
-    pub lon: String,
+    /// Latitude as a float.
+    #[serde(deserialize_with = "de_f64_from_str")]
+    pub lat: f64,
+    /// Longitude as a float.
+    #[serde(deserialize_with = "de_f64_from_str")]
+    pub lon: f64,
+    /// Full address of the place.
     pub address: String,
+    /// Kind of the place.
     #[serde(rename(serialize = "type", deserialize = "Id"))]
     pub kind: YxhooPlaceKind,
 }
@@ -39,10 +55,13 @@ pub struct YxhooPlace {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all(serialize = "camelCase"))]
 pub struct YxhooSuggestResponse {
+    /// The original query string.
     #[serde(rename(deserialize = "@query"))]
     pub query: String,
+    /// Total number of results available.
     #[serde(rename(deserialize = "@totalResultsAvailable"))]
     pub total_results: u32,
+    /// Suggested places.
     #[serde(rename(deserialize = "Result"))]
     pub results: Vec<YxhooPlace>,
 }

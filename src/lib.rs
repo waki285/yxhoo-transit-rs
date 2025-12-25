@@ -48,4 +48,4 @@ mod http;
 pub mod transit_dto;
 mod yxhoo;
 
-pub use yxhoo::{suggest_places, transit};
+pub use yxhoo::{YxhooPlace, YxhooPlaceKind, YxhooSuggestResponse, suggest_places, transit};
