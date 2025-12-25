@@ -24,7 +24,7 @@ pub enum TransitTicketPreference {
 }
 
 impl TransitTicketPreference {
-    pub fn as_str(&self) -> &'static str {
+    pub const fn as_str(&self) -> &'static str {
         match self {
             Self::Normal => "normal",
             Self::IC => "ic",
@@ -44,7 +44,7 @@ pub enum SeatPreference {
 }
 
 impl SeatPreference {
-    pub fn as_u32(&self) -> u32 {
+    pub const fn as_u32(&self) -> u32 {
         *self as u32
     }
 }
@@ -62,7 +62,7 @@ pub enum WalkingSpeed {
 }
 
 impl WalkingSpeed {
-    pub fn as_u32(&self) -> u32 {
+    pub const fn as_u32(&self) -> u32 {
         *self as u32
     }
 }
@@ -83,7 +83,7 @@ pub enum AvailableMeans {
 }
 
 impl AvailableMeans {
-    pub fn as_str(&self) -> &'static str {
+    pub const fn as_str(&self) -> &'static str {
         match self {
             Self::Airlane => "al",
             Self::Shinkansen => "shin",
@@ -152,7 +152,7 @@ pub enum DateKind {
 }
 
 impl DateKind {
-    pub fn as_u32(&self) -> u32 {
+    pub const fn as_u32(&self) -> u32 {
         *self as u32
     }
 }
@@ -169,13 +169,13 @@ pub enum TransitCriteria {
 }
 
 impl TransitCriteria {
-    pub fn as_u32(&self) -> u32 {
+    pub const fn as_u32(&self) -> u32 {
         *self as u32
     }
 }
 
 #[inline]
-fn default_rank() -> u32 {
+const fn default_rank() -> u32 {
     1
 }
 

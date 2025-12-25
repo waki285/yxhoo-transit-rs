@@ -68,7 +68,7 @@ pub async fn suggest_places(query: &str) -> anyhow::Result<YxhooSuggestResponse>
 }
 
 #[inline]
-fn minute_digits(min: u32) -> (u32, u32) {
+const fn minute_digits(min: u32) -> (u32, u32) {
     (min / 10, min % 10)
 }
 

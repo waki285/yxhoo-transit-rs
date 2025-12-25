@@ -436,7 +436,7 @@ fn build_search_datetime(page_query: &Value) -> Option<DateTime<FixedOffset>> {
     jst_offset().from_local_datetime(&dt).single()
 }
 
-fn jst_offset() -> FixedOffset {
+const fn jst_offset() -> FixedOffset {
     FixedOffset::east_opt(9 * 3600).expect("valid JST offset")
 }
 
