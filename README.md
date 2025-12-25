@@ -17,7 +17,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-yxhoo-transit = "0.1.0"
+yxhoo-transit = "0.4"
 ```
 
 ## Features
